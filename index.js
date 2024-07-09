@@ -31,14 +31,14 @@ async function run() {
     const database = client.db("BariVara");
     const categoriesCollection = database.collection("categories");
     const roomsCollection = database.collection("rooms");
-    const houseInfoCollection = database.collection("houseInfo");
+    const meterNumbersCollection = database.collection("meterNumbers");
     const monthlyDataCollection = database.collection("monthlyData");
 
     // DATABASE AND COLLECTION ENDS
 
     // PURCHASE ROUTES
 
-    // CREATE purchase
+    // CREATE category
     app.post("/categories", async (req, res) => {
       let category = req.body;
       category = { ...category, createdAt: new Date().toISOString() };
@@ -46,17 +46,17 @@ async function run() {
       const result = await categoriesCollection.insertOne(category);
       res.send(result);
     });
-    // GET ALL purchase
+    // GET ALL categories
     app.get("/categories", async (req, res) => {
       const cursor = categoriesCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
-    // Delete One purchase
-    app.delete("/purchase/:id", async (req, res) => {
+    // Delete One category
+    app.delete("/categories/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await purchaseCollection.deleteOne(query);
+      const result = await categoriesCollection.deleteOne(query);
 
       res.send(result);
       if (result.deletedCount === 1) {
@@ -65,12 +65,36 @@ async function run() {
         console.log("No documents matched the query. Deleted 0 documents.");
       }
     });
-    // ROOMS ROUTES
+
+    // ROOMS  ROUTES
+
     // GET ALL ROOMS
     app.get("/rooms", async (req, res) => {
       const cursor = roomsCollection.find();
       const result = await cursor.toArray();
       res.send(result);
+    });
+
+    // METER NUMBER ROUTES
+
+    // GET ALL METER NUMBERS
+    app.get("/meter", async (req, res) => {
+      const cursor = meterNumbersCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // Delete One meterNumber
+    app.delete("/meter/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await meterNumbersCollection.deleteOne(query);
+
+      res.send(result);
+      if (result.deletedCount === 1) {
+        console.log("Successfully deleted one document.");
+      } else {
+        console.log("No documents matched the query. Deleted 0 documents.");
+      }
     });
 
     //MONTHLY DATA ROUTES
