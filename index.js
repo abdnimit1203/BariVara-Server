@@ -32,7 +32,7 @@ async function run() {
     const categoriesCollection = database.collection("categories");
     const roomsCollection = database.collection("rooms");
     const meterNumbersCollection = database.collection("meterNumbers");
-    const monthlyDataCollection = database.collection("monthlyData");
+    const monthlyDataCollection = database.collection("monthlyMeterData");
 
     // DATABASE AND COLLECTION ENDS
 
@@ -101,7 +101,7 @@ async function run() {
 
     // Get data by month and year
     app.get("/monthlyData", async (req, res) => {
-      const { year, month } = req.query;
+      const { month,year } = req.query;
      
       console.log( month,year);
       try {
