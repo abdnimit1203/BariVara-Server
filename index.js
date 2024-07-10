@@ -74,7 +74,47 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    // GET SINGLE ROOM DATA
+    app.get("/rooms/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await roomsCollection.findOne(query);
+      res.send(result);
+    });
 
+    // ADD A LEASEHOLDER TO A ROOM
+    app.post('/rooms/:id/leaseholder', async (req, res) => {
+      const roomId = req.params.id;
+      const newLeaseholder = req.body; // expects leaseholder details in the request body
+      console.log('Room ID:', roomId);
+      console.log('New Leaseholder:', newLeaseholder);
+// Generate a unique _id for the new leaseholder
+newLeaseholder._id = new ObjectId();
+      try {
+        const result = await roomsCollection.updateOne(
+          { _id: new ObjectId(roomId) },
+          {
+            $push: {
+              leaseholder: {
+                $each: [newLeaseholder],
+                $position: 0
+              }
+            }
+          }
+        );
+
+        console.log('Update Result:', result);
+
+        if (result.matchedCount === 1) {
+          res.send({ message: 'Leaseholder added successfully' });
+        } else {
+          res.status(404).send({ message: 'Room not found' });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send({ message: 'An error occurred', error });
+      }
+    });
     // METER NUMBER ROUTES
 
     // GET ALL METER NUMBERS
@@ -101,9 +141,9 @@ async function run() {
 
     // Get data by month and year
     app.get("/monthlyData", async (req, res) => {
-      const { month,year } = req.query;
-     
-      console.log( month,year);
+      const { month, year } = req.query;
+
+      console.log(month, year);
       try {
         let query = {};
         if (year) query.year = parseInt(year, 10);
