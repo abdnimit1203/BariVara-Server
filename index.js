@@ -68,12 +68,34 @@ async function run() {
 
     // ROOMS  ROUTES
 
-    // GET ALL ROOMS
     app.get("/rooms", async (req, res) => {
-      const cursor = roomsCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+      const roomNo = req.query.roomNo;
+    console.log(roomNo)
+      if (roomNo) {
+        // If roomNo is provided, fetch the single room data
+        const query = { roomNo: parseInt(roomNo) }; // Assuming roomNo is stored as a string in the database
+        try {
+          const result = await roomsCollection.findOne(query);
+          if (result) {
+            res.send(result);
+          } else {
+            res.status(404).send({ message: "Room not found" });
+          }
+        } catch (error) {
+          res.status(500).send({ message: "Internal server error", error: error.message });
+        }
+      } else {
+        // If no roomNo is provided, fetch all rooms data
+        try {
+          const cursor = roomsCollection.find();
+          const result = await cursor.toArray();
+          res.send(result);
+        } catch (error) {
+          res.status(500).send({ message: "Internal server error", error: error.message });
+        }
+      }
     });
+    
     // GET SINGLE ROOM DATA
     app.get("/rooms/:id", async (req, res) => {
       const id = req.params.id;
